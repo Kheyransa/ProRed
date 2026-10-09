@@ -129,3 +129,21 @@ def test_semantically_invalid_output_does_not_poison_retry_cache():
         service.plan(snapshot, ['Python'], comparison)
     assessment = service.plan(snapshot, ['Python'], comparison)
     assert provider.count == 2 and assessment.current
+
+
+def test_vacancy_context_is_sent_and_separates_cached_assessments():
+    class Capture(MockProvider):
+        calls = 0
+        def generate(self, task, payload, schema):
+            self.calls += 1
+            self.payload = payload
+            return super().generate(task, payload, schema)
+    provider, cache, snapshot = Capture(), {}, demo_snapshot()
+    first = Service(provider, cache, context={'title': 'Junior', 'description': 'Build APIs', 'skills': ['Python']})
+    first.compare(snapshot, ['Python'], ['Python'], None)
+    first.compare(snapshot, ['Python'], ['Python'], None)
+    assert provider.calls == 1
+    second = Service(provider, cache, context={'title': 'Other vacancy', 'description': 'Data processing', 'skills': ['Python']})
+    second.compare(snapshot, ['Python'], ['Python'], None)
+    assert provider.calls == 2
+    assert provider.payload['job_requirements']['title'] == 'Other vacancy'

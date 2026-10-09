@@ -40,10 +40,10 @@ endobj
 endobj
 6 0 obj
 <<
-/Length 262
+/Length 294
 >>
 stream
-BT /F1 11 Tf 48 730 Td 22 TL (Synthetic demo CV - not a real applicant) Tj T* (Skills: Python, Testing, SQL) Tj T* (Project: Inventory - Built a Python inventory function with validation and) Tj T* (tests.) Tj T* (GitHub: https://github.com/prored-demo) Tj T* ET
+BT /F1 11 Tf 48 730 Td 22 TL (Synthetic ProRed test CV - not a real applicant) Tj T* (Skills: Python, Unit testing) Tj T* (Project: sampleproject - Python packaging demonstration with a hello-world) Tj T* (function and unit tests.) Tj T* (GitHub: https://github.com/pypa/sampleproject) Tj T* ET
 endstream
 endobj
 xref
@@ -62,5 +62,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-677
+709
 %%EOF

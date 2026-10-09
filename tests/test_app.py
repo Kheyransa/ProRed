@@ -25,6 +25,8 @@ def test_candidate_pdf_review_save_and_view_switch():
     from test_intake import sample_pdf
 
     app = AppTest.from_file('../app.py', default_timeout=10).run()
+    next(button for button in app.button if button.label == 'Load demo vacancy').click().run()
+    next(button for button in app.button if button.label == 'Save vacancy and continue').click().run()
     app.session_state['cv_data'] = sample_pdf('Python https://github.com/alice/demo')
     app.session_state['cv_filename'] = 'sample.pdf'
     app.sidebar.radio[0].set_value('Candidate').run()

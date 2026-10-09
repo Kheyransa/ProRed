@@ -3,6 +3,7 @@ import argparse
 import os
 import re
 import time
+from pathlib import Path
 
 from prored.github import GitHubClient, GitHubError
 from prored.provider import GroqProvider, ProviderError
@@ -10,6 +11,8 @@ from prored.schemas import SkillSuggestions
 from prored.sources import verified_source
 from prored.config import load_config
 from prored.service import Service, build_report
+from prored.intake import extract_pdf_text
+from prored.vacancy import DEMO_TITLE, DEMO_DESCRIPTION, DEMO_SKILLS
 
 
 def main():
@@ -20,6 +23,7 @@ def main():
     parser.add_argument('--flow', action='store_true', help='Live synthetic end-to-end flow; consumes additional API quota.')
     parser.add_argument('--retry-rate', action='store_true', help='For integration verification only: at most two short waits per rate-limited operation.')
     parser.add_argument('--model', help='Override GROQ_MODEL for this synthetic check process only; does not edit .env.')
+    parser.add_argument('--demo-vacancy', action='store_true', help='Verify all six demo-vacancy skills with the bundled synthetic real-demo PDF.')
     args = parser.parse_args()
     if args.model:
         os.environ['GROQ_MODEL'] = args.model
@@ -68,10 +72,12 @@ def main():
         else:
             client = GroqProvider()
             try:
-                service = Service(client)
-                claims = perform(lambda: service.extract_cv('Skills: Python, Testing. Project: sampleproject - a Python packaging demonstration with a hello-world function and tests.'))
+                context = {'title': DEMO_TITLE, 'description': DEMO_DESCRIPTION, 'skills': list(DEMO_SKILLS)} if args.demo_vacancy else None
+                service = Service(client, context=context)
+                cv = extract_pdf_text((Path(__file__).resolve().parent.parent / 'examples' / 'real_demo_cv.pdf').read_bytes()) if args.demo_vacancy else 'Skills: Python, Testing. Project: sampleproject - a Python packaging demonstration with a hello-world function and tests.'
+                claims = perform(lambda: service.extract_cv(cv))
                 print('LIVE FLOW: CV extraction validated.', flush=True)
-                skills = ['Python', 'Testing']
+                skills = list(DEMO_SKILLS) if args.demo_vacancy else ['Python', 'Testing']
                 comparison = perform(lambda: service.compare(snapshot, skills, claims.skills, 'sampleproject | Python packaging demonstration with tests'))
                 print('LIVE FLOW: comparison and source references validated.', flush=True)
                 assessment = perform(lambda: service.plan(snapshot, skills, comparison))

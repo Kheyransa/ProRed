@@ -52,14 +52,17 @@ class MockProvider:
         if schema is CVClaims:
             text = payload["text"].lower()
             skills = [s for s in ["Python", "SQL", "Testing", "Git", "Django", "FastAPI"] if s.lower() in text]
+            if "unit test" in text:
+                skills = [s for s in skills if s != "Testing"] + ["Unit testing"]
             projects = [ProjectClaim(name="Inventory", description="Candidate mentions an inventory project.")] if "inventory" in text else []
             return CVClaims(skills=skills, projects=projects)
         if schema is Comparison:
             evidence = []
             for skill in payload["skills"]:
-                sources = [s for s in payload["sources"] if (skill.lower() == "python" and s["kind"] == "Source implementation") or (skill.lower() == "testing" and s["kind"] == "Test implementation")]
+                sources = [s for s in payload["sources"] if (skill.lower() in {"python", "input validation", "error handling"} and s["kind"] == "Source implementation") or (skill.lower() in {"testing", "unit testing"} and s["kind"] == "Test implementation")]
                 claim = next((c for c in payload["claims"] if skill.lower() in c.lower()), "")
-                evidence.append(Evidence(skill=skill, claim=claim, status="Supported" if sources else "Not found in inspected files", source_ids=[s["source_id"] for s in sources[:2]], explanation="Illustrative mock keyword/fixture observation; not a real AI assessment.", uncertainty="Only inspected snippets; authorship and wider proficiency are unknown."))
+                status = "Partially supported" if sources and skill.lower() in {"input validation", "error handling"} else "Supported" if sources else "Not found in inspected files"
+                evidence.append(Evidence(skill=skill, claim=claim, status=status, source_ids=[s["source_id"] for s in sources[:2]], explanation="Illustrative mock keyword/fixture observation; not a real AI assessment.", uncertainty="Only inspected snippets; authorship and wider proficiency are unknown."))
             return Comparison(evidence=evidence, uncertainties=["Mock mode: findings are deterministic illustrations, not candidate evaluation."])
         if schema is InterviewPlan:
             skills = payload["skills"]
@@ -76,8 +79,8 @@ class MockProvider:
 
     def _item(self, kind, skill, difficulty, payload):
         sources = payload.get("sources", [])
-        preferred = "Test implementation" if skill.lower() == "testing" else "Source implementation"
-        source = next((s for s in sources if s["kind"] == preferred), None) if skill.lower() in {"python", "testing"} else None
+        preferred = "Test implementation" if skill.lower() in {"testing", "unit testing"} else "Source implementation"
+        source = next((s for s in sources if s["kind"] == preferred), None) if skill.lower() in {"python", "testing", "unit testing", "input validation", "error handling"} else None
         if kind == "coding":
             prompt = "Implement safe_total(items): sum non-negative numeric prices, reject negative values, and return 0 for empty input. Explain edge cases in comments."
             starter = "def safe_total(items):\n    # Write your implementation and edge-case notes here.\n    pass\n"

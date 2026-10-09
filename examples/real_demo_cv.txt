@@ -1,0 +1,4 @@
+Synthetic ProRed test CV - not a real applicant
+Skills: Python, Unit testing
+Project: sampleproject - Python packaging demonstration with a hello-world function and unit tests.
+GitHub: https://github.com/pypa/sampleproject

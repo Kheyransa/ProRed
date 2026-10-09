@@ -45,11 +45,14 @@ def source_payload(snapshot: Snapshot):
 
 
 class Service:
-    def __init__(self, provider, cache: dict | None = None):
+    def __init__(self, provider, cache: dict | None = None, context: dict | None = None):
         self.provider = provider
         self.cache = cache if cache is not None else {}
+        self.context = context or {}
 
     def _generate(self, task, payload, schema):
+        if self.context and task in {"compare", "plan", "review", "followup"}:
+            payload = {**payload, "job_requirements": self.context}
         key = hashlib.sha256(json.dumps([self.provider.mode, getattr(self.provider, "model", "fixture-v1"), task, payload], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         self.last_cache_key = key
         if key not in self.cache:

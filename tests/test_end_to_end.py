@@ -13,6 +13,7 @@ def test_full_mock_ui_flow_and_reset():
     app.multiselect(key='accepted_suggestions').set_value(['Python', 'Testing', 'SQL']).run()
     click(app, 'Add selected suggestions')
     assert app.session_state['required_skills'] == ['Python', 'Testing', 'SQL']
+    click(app, 'Save vacancy and continue')
     click(app, 'Load sample CV')
     assert app.sidebar.radio[0].value == 'Candidate'
     click(app, 'Extract CV skills and projects')
