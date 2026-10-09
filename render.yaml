@@ -1,0 +1,17 @@
+# Prepared configuration only; deploying requires an explicit action in Render.
+services:
+  - type: web
+    name: prored
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m streamlit run app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --browser.gatherUsageStats false
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.15
+      - key: PRORED_MODE
+        value: mock
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b

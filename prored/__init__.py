@@ -1,0 +1,1 @@
+"""ProRed assessment foundation."""

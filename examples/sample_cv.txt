@@ -1,0 +1,4 @@
+Synthetic demo CV - not a real applicant
+Skills: Python, Testing, SQL
+Project: Inventory - Built a Python inventory function with validation and tests.
+GitHub: https://github.com/prored-demo
